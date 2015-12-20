@@ -1,0 +1,28 @@
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /_ah/spi/.*
+  script: pocket-juke-endpoints.APPLICATION
+- url: /images
+  static_dir: images
+- url: /html templates
+  static_dir: /html templates
+- url: /css
+  static_dir: css
+- url: /js
+  static_dir: js
+- url: /.*
+  script: demo_user.app
+- url: /js/templates
+  static_dir: /js/templates
+
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest
+- name: endpoints
+  version: 1.0
