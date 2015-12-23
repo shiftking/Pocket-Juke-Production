@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+  </head>
+    </head>
+    <body>
+          <div class="container">
+              <div class ="row">
+                <header class="bgimage">
+                  <div class="container panel panel-default col-xs-3 col-xs-offset-1 offset_top">
+                    <div class="panel-title ">
+                      <h1>Pocket Juke<h1>
+                    </div>
+                    <div class="panel-body">
+                      Your personal DJ
+                    </div>
+                  </div>
+                </header>
+              </div>
+              <div class ="row">
+                <div class="col-xs-offset-1">
+                  <h1>Welcome to the start a Party Page</h1>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-offset-1 col-xs-6 col-md-3">
+                    <form action="/start"method="post">
+                      <div class="form-group">
+                        <label for="startparty">Party Name</label>
+                        <input  id="party_name" class="form-control" name="party_name" placeholder="Name of your party">
+                      </div>
+                      <div class="form-group">
+                        <label for="startparty">Party Pass Code</label>
+                        <input id="party_code"class='form-control' name="party_code" >
+                      </div>
+                      <div class="form-group">
+                        <button id="add_party"type="button" class="btn btn-default">Create Party</button>
+
+                      </div>
+                    </form>
+                    <button type="link" onclick="window.location='/';"class="btn btn-default">Home</button>
+                  </div>
+              </div>
+
+
+                  </form>
+          </div>
+          <script async src="js/base_add.js"></script>
+          <script>
+            function init() {
+                  //window.alert("somthing 6");
+                google.appengine.pocket_juke.party.init('//' + window.location.host + '/_ah/api/');
+              }
+          </script>
+          <script src="https://apis.google.com/js/client.js?onload=init"></script>
+    </body>
+</html>

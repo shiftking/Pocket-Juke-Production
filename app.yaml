@@ -5,17 +5,18 @@ threadsafe: true
 
 handlers:
 - url: /_ah/spi/.*
-  script: pocket-juke-endpoints.APPLICATION
+  script: pocket_juke_endpoints.APPLICATION
+
 - url: /images
   static_dir: images
-- url: /html templates
-  static_dir: /html templates
+- url: /html_templates
+  static_dir: /html_templates
 - url: /css
   static_dir: css
 - url: /js
   static_dir: js
 - url: /.*
-  script: demo_user.app
+  script: main.app
 - url: /js/templates
   static_dir: /js/templates
 
