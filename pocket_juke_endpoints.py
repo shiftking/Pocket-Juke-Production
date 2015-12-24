@@ -23,12 +23,19 @@ from protorpc import remote
 
 
 package = 'pocket_juke'
+
+
+#thsi represents the entitiy for a user class
+
+
+
 #NDB data type user
 class User(ndb.Model):
     """Sub Model representing the user"""
 
     user_id = ndb.StringProperty(indexed=True)
     party_key_id = ndb.StringProperty(indexed=True)
+
 
 #NDB data type party
 class Party(ndb.Model):
@@ -38,13 +45,37 @@ class Party(ndb.Model):
     code = ndb.StringProperty(indexed=False)
     attending = ndb.IntegerProperty()
 
+#NDB datatype for a song
+class Song(ndb.Model):
+    song_name = ndb.StringProperty()
+    track_id = ndb.StringProperty(indexed=True)
+    user_suggest = ndb.KeyProperty(indexed=True)
+    party_key_id = ndb.KeyProperty(Party,indexed=True)
+
+
+#NDB datatype for an activity
+class Activity(ndb.Model):
+    song = ndb.KeyProperty(Song,indexed=True)
+    user_vote = ndb.KeyProperty(User,indexed=True)
+    time_stamp = ndb.DateTimeProperty(auto_now_add=True)
+
 #this represents the entity for housing the party name and code
 class Party_class(messages.Message):
   """Greeting that stores a message."""
   name = messages.StringField(1, required=True)
   pass_code = messages.StringField(2, required=False)
   party_id = messages.StringField(3)
-class
+#this represents the entity for housing the Activity_Class
+
+class Activity_class(messages.Message):
+    suggestion = messages.BooleanField(1,required=True)
+    song_name = messages.StringField(2,required=True)
+    song_id = messages.StringField(3,required=True)
+
+class Song_class(messages.Message):
+    song_name = messages.StringField(1,required=True)
+    track_id = messages.StringField(2,required=True)
+
 #this holsd the entity that is used for the response for successful/not succesful additcion of a party
 class add_response(messages.Message):
     response = messages.StringField(1,required=True)
@@ -126,7 +157,7 @@ class PocketJukeAPI(remote.Service):
       return add_response(response="Removed from the party")
 #method for joining a party
   @endpoints.method(Party_class,add_response,
-                      path='party_api/join_party',http_method='GET',
+                      path='party_api/join_party',http_method='POST',
                       name='pocket_juke.join_party')
   def join_party(self, request):
       que = Party.query(Party.party_name == request.name).get(keys_only=True)
@@ -138,6 +169,50 @@ class PocketJukeAPI(remote.Service):
             return add_response(response = "Joined the active party")
       else:
             return add_response(response = "Unable to join that Party")
-  @endpoints.method()
-  def add_seggestion(self,response)
+#method for added a suggestion to the party
+  @endpoints.method(Song_class,add_response,
+                      path='party_api/add_song',http_method="POST",
+                      name='pocket_juke.add_song')
+
+  def add_song(self,response):
+      song_que = Song.query(Song.track_id == response.track_id)
+      user = users.get_current_user()
+      user_que = User.query(User.user_id == user.user_id())
+      user_party_key = user_que.party_key_id
+      song = Song(song_name=response.song_name,track_id=response.track_id,party_key_id= user_party_key,user_suggest=user_que.get(keys_only=True))
+      if not song_que.get():
+
+          song.put()
+          return add_response(response='Added to the activity list')
+      else:
+
+          song_key = song.put()
+          activity = Activity(song = song_key,user_vote=que)
+          activity.put()
+          return add_response(response='Already suggested, but added as a vote')
+#method for voting for a song in a party_ket_id
+  @endpoints.method(Activity_class,add_response,
+                     path='party_api/vote_song',http_method="POST",
+                     name='pocket_juke.vote_song')
+  def vote_song(self,response):
+      user = users.get_current_user()
+      user_que = User.query(User.user_id == user.user_id()).get(keys_only=True)
+      song_que = Song.query(Song.track_id == response.track_id).get(keys_only=True)
+      activity = Activity(song = song_que,user_vote = user_que)
+      activity.put()
+      return add_response(response == 'voted for song successfully')
+#method for creating a new user
+  @endpoints.method(message_types.VoidMessage,add_response,
+                     path='party_api/add_user',http_method="POST",
+                     name='pocket_juke.add_user')
+  def add_user(self,response):
+      user = users.get_current_user()
+      user_que = User.query(User.user_id == user.user_id())
+      if not user_que.get():
+          new_user = User(user_id = user.user_id())
+          new_user.put()
+          return add_response(response = 'added user successfully')
+      else:
+          return add_response(response = 'user already in database')
+
 APPLICATION = endpoints.api_server([PocketJukeAPI])
