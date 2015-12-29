@@ -15,31 +15,38 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 class Party(ndb.Model):
-    """main model to represent a party"""
-    party_name = ndb.StringProperty(indexed=False)
-    code = ndb.StringProperty(indexed=False)
-    attending = ndb.IntegerProperty()
+    """Somthoing"""
 
+
+#NDB data type user
 class User(ndb.Model):
     """Sub Model representing the user"""
 
-    user_id = ndb.StringProperty()
-    party_key_id = ndb.StringProperty()
+    user_id = ndb.StringProperty(indexed=True)
+    party_key = ndb.KeyProperty(Party,indexed=True)
 
+
+#NDB data type party
+class Party(ndb.Model):
+    """main model to represent a party"""
+    party_creator = ndb.KeyProperty(User,indexed=True)
+    party_name = ndb.StringProperty(indexed=True)
+    code = ndb.StringProperty(indexed=False)
+    attending = ndb.IntegerProperty()
+
+#NDB datatype for a song
 class Song(ndb.Model):
-    """main model to represent a song and its parameters"""
-    title = ndb.StringProperty()
-#   artist = ndb.StringProperty(indexed=False)
-
-    user_suggest = ndb.StringProperty()
-    party_id = ndb.StringProperty()
-#    song_uli = ndb.StringProperty()
-class Activity(ndb.Model):
-    """Main model to represent a Activity entry for a Party"""
-    song_id = ndb.StringProperty()
-    party_id = ndb.StringProperty()
-    date = ndb.DateTimeProperty(auto_now_add=True)
     song_name = ndb.StringProperty()
+    track_id = ndb.StringProperty(indexed=True)
+    user_suggest = ndb.KeyProperty(indexed=True)
+    party_key_id = ndb.KeyProperty(Party,indexed=True)
+
+
+#NDB datatype for an activity
+class Activity(ndb.Model):
+    song = ndb.KeyProperty(Song,indexed=True)
+    user_vote = ndb.KeyProperty(User,indexed=True)
+    time_stamp = ndb.DateTimeProperty(auto_now_add=True)
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -47,6 +54,10 @@ class MainPage(webapp2.RequestHandler):
         user = users.get_current_user()
 
         if user:
+            user_logged = User.query(User.user_id == user.user_id())
+            if not user_logged.get():
+                new_user = User(user_id=user.user_id(),party_key = None)
+                new_user.put()
             url = users.create_logout_url(self.request.uri)
             url_linktext = 'Logout'
 
